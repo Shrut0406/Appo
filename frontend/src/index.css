@@ -4,6 +4,18 @@
   --color-primary: #5f6fff; 
 }
 
-.active hr{
-    @apply block
+
+@layer utilities {
+  .grid-cols-auto {
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  }
 }
+
+.active hr {
+  @apply block;
+}
+
+::-webkit-scrollbar {
+  display: none; /* Can't use @apply hidden here */
+}
+
