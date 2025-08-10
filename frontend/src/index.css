@@ -15,6 +15,12 @@
   @apply block;
 }
 
+@media (max-width: 768px) {
+  .active p {
+    @apply bg-primary text-white;
+  }
+}
+
 ::-webkit-scrollbar {
   display: none; /* Can't use @apply hidden here */
 }
