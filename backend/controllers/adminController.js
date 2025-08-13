@@ -13,17 +13,17 @@ const addDoctor= async(req,res)=>{
 
         // check if all required fields are provided
         if (!name || !email || !password || !speciality || !degree || !experience || !about  || !fees || !address || !imageFile) {
-            return res.status(400).json({ message: 'Please provide all required fields.' });
+            return res.json({success:false, message: 'Please provide all required fields.' });
         }
 
         // validate email format
         if (!validator.isEmail(email)) {
-            return res.status(400).json({ message: 'Invalid email format.' });
+            return res.json({success:false, message: 'Invalid email format.' });
         }
 
         // validate password strength
         if(password.length < 8) {
-            return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
+            return res.json({success:false, message: 'Password must be at least 6 characters long.' });
         }
 
         // hash the password
@@ -53,12 +53,12 @@ const addDoctor= async(req,res)=>{
 
         const newDoctor= new doctorModel(doctorData);
         await newDoctor.save();
-        res.status(201).json({ message: 'Doctor added successfully' });
+        res.json({success:true, message: 'Doctor added successfully' });
 
     }
     catch(error){
         console.error("Error adding doctor:", error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+        res.json({ success:false, message: 'Internal server error', error: error.message });
     }
 }
 
@@ -70,15 +70,15 @@ const loginAdmin = async (req, res) => {
         const { email, password } = req.body;
         if(email===process.env.ADMIN_EMAIL && password===process.env.ADMIN_PASSWORD){
             const token = jwt.sign(email+password, process.env.JWT_SECRET);
-            return res.status(200).json({ message: 'Login successful', token });
+            return res.json({success:true, message: 'Login successful', token });
         }
         else {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.json({success:false, message: 'Invalid email or password' });
         }
     } 
     catch (error) {
         console.error("Error logging in admin:", error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+        res.json({success:false, message: 'Internal server error', error: error.message });
     }
 }
 
