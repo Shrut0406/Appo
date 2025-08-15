@@ -23,7 +23,7 @@ const addDoctor= async(req,res)=>{
 
         // validate password strength
         if(password.length < 8) {
-            return res.json({success:false, message: 'Password must be at least 6 characters long.' });
+            return res.json({success:false, message: 'Password must be at least 8 characters long.' });
         }
 
         // hash the password

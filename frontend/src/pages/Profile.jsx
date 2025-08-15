@@ -1,26 +1,60 @@
-import React, { useState } from 'react'
-import { assets } from '../assets/assets';
-
+import React, { useContext, useState } from 'react'
+import { ApppContext } from '../context/AppContext';
+import { assets } from "../assets/assets"
+import axios from 'axios';
+import { toast } from 'react-toastify';
 const Profile = () => {
-  const [userData, setUserData] = useState({
-    name: "Edward Vincent",
-    image: assets.profile_pic,
-    email: 'richardjameswap@gmail.com',
-    phone: '+1 123 456 7890',
-    address: {
-      line1: "57th Cross, Richmond",
-      line2: "Circle, Church Road, London"
-    },
-    gender: 'Male',
-    dob: '2000-01-20'
-  });
+
+  const { userData, setUserData, loadUserProfile, token, backendUrl } = useContext(ApppContext)
+
+  const [image, setImage] = useState(false);
+
 
   const [edit, setEdit] = useState(false);
 
+  const updateUserProfile = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('name', userData.name);
+      // console.log(formData);
+      formData.append('phone', userData.phone);
+      formData.append('address', JSON.stringify(userData.address));
+      formData.append('gender', userData.gender);
+      formData.append('dateOfBirth', userData.dateOfBirth);
+      image && formData.append('image', image);
+      // for (let [key, value] of formData.entries()) {
+      //   console.log(key, value);
+      // }
+      const { data } = await axios.post(backendUrl + 'api/user/update-profile', formData, { headers: { token } });
+      if (data.success) {
+        toast.success("Profile updated");
+        await loadUserProfile();
+        setEdit(false);
+        setImage(false);
+      }
+      else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
 
-  return (
+  return userData && (
     <div className='max-w-lg flex flex-col gap-2 text-sm'>
-      <img className='w-36 rounded' src={userData.image} alt="" />
+      {
+        edit
+          ?
+          <label htmlFor="image">
+            <div className='inline-block relative cursor-pointer'>
+              <img className='w-36 rounded opacity-75' src={image ? URL.createObjectURL(image) : userData.image} alt="" />
+              <img className='w-10 absolute bottom-12 right-12' src={image ? '' : assets.upload_icon} alt="" />
+            </div>
+            <input onChange={(e) => setImage(e.target.files[0])} type="file" id='image' hidden />
+          </label>
+          : <img className='w-36 rounded' src={userData.image} alt="" />
+      }
+
 
       {
         edit
@@ -73,8 +107,8 @@ const Profile = () => {
             }
             <p className='font-medium'>Birthday:</p>{
               edit
-                ? <input className='max-w-28 bg-gray-100' type="date" onChange={(e) => setUserData(prev => ({ ...prev, dob: e.target.value }))} value={userData.dob} />
-                : <p className='text-gray-400'>{userData.dob}</p>
+                ? <input className='max-w-28 bg-gray-100' type="date" onChange={(e) => setUserData(prev => ({ ...prev, dateOfBirth: e.target.value }))} value={userData.dateOfBirth} />
+                : <p className='text-gray-400'>{userData.dateOfBirth}</p>
             }
           </div>
         </div>
@@ -83,8 +117,8 @@ const Profile = () => {
       <div className='mt-10'>
         {
           edit
-          ? <button className='border border-primary  px-8 py-2 rounded-full hover:bg-primary hover:text-white transition-all' onClick={()=>setEdit(false)}>Save information</button>
-          : <button className='border border-primary  px-8 py-2 rounded-full hover:bg-primary hover:text-white transition-all' onClick={()=>setEdit(true)}>Edit</button>
+            ? <button className='border border-primary  px-8 py-2 rounded-full hover:bg-primary hover:text-white transition-all cursor-pointer' onClick={updateUserProfile}>Save information</button>
+            : <button className='border border-primary  px-8 py-2 rounded-full hover:bg-primary hover:text-white transition-all cursor-pointer' onClick={() => setEdit(true)}>Edit</button>
         }
       </div>
 

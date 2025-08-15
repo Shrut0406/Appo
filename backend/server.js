@@ -4,6 +4,8 @@ require('dotenv').config();
 const connectDB = require('./config/mongoDB');
 const connectCloudinary = require('./config/cloudinary');
 const adminRouter = require('./routes/adminRoutes');
+const doctorRouter = require('./routes/doctorRoute');
+const userRouter = require('./routes/userRoutes');
 
 
 const app= express();
@@ -20,7 +22,8 @@ connectCloudinary();
 // API endpoints
 
 app.use('/api/admin',adminRouter)
-
+app.use('/api/doctor',doctorRouter)
+app.use('/api/user',userRouter)
 app.get('/', (req, res) => {
   res.send('Welcome to the backend server!');
 });
