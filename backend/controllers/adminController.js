@@ -82,4 +82,18 @@ const loginAdmin = async (req, res) => {
     }
 }
 
-module.exports = {addDoctor, loginAdmin};
+// API to fetch data from backend
+
+const fetchData = async (req, res) => {
+    try {
+        const doctors = await doctorModel.find({}).select('-password');
+        res.json({success:true, doctors: doctors });
+    } 
+    catch (error) {
+        res.json({success:false, message: error.message });
+    }
+}
+
+
+
+module.exports = {addDoctor, loginAdmin,fetchData};
