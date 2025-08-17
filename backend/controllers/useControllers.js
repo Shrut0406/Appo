@@ -5,6 +5,8 @@ require('dotenv').config();
 const userModel = require('../models/userModels')
 const jwt = require("jsonwebtoken")
 const cloudinary = require('cloudinary').v2;
+const doctorModel = require("../models/doctorModel");
+const appointmentModel = require("../models/appointmentModel");
 
 
 const registerUser = async (req, res) => {
@@ -82,11 +84,11 @@ const updateProfile = async (req, res) => {
         const { userId, name, phone, address, dateOfBirth, gender } = req.body;
         const imageFile = req.file;
 
-        if (!name || !phone || !dateOfBirth || !gender ) {
+        if (!name || !phone || !dateOfBirth || !gender) {
             return res.json({ success: false, message: "missing field" });
         }
 
-        await userModel.findByIdAndUpdate(userId, { name, phone, address: JSON.parse(address),dateOfBirth, gender })
+        await userModel.findByIdAndUpdate(userId, { name, phone, address: JSON.parse(address), dateOfBirth, gender })
 
         if (imageFile) {
             const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: 'image' })
@@ -101,4 +103,57 @@ const updateProfile = async (req, res) => {
     }
 }
 
-module.exports = { registerUser, userLogin, getProfile, updateProfile }
+// API to add appointment
+
+const bookAppointment = async (req, res) => {
+    try {
+        const { userId, docId, slotDate, slotTime } = req.body;
+        const docData = await doctorModel.findById(docId).select('-password');
+
+        if (!docData.available) {
+            return res.json({ success: false, message: 'Doctor Not available' });
+        }
+
+        let slot_booked = doctorModel.slot_booked;
+
+        if (slot_booked[slotDate]) {
+            if (slot_booked[slotDate].includes(slotTime)) {
+                return res.json({ success: false, message: 'Slot Not available' });
+            }
+            else {
+                slot_booked[slotDate].push(slotTime);
+            }
+        }
+        else {
+            slot_booked[slotDate] = [];
+            slot_booked[slotDate].push(slotTime);
+        }
+        const userData = await userModel.findById(userId).select('-password');
+
+        delete docData.slot_booked;
+
+        const appointmentData={
+            userId,
+            docId,
+            slotDate,
+            slotTime,
+            userData,
+            docData,
+            amount:docData.fees,
+            date: Date.now()
+
+        }
+
+        const newAppointment=new appointmentModel(appointmentData);
+
+        await newAppointment.save();
+        await doctorModel.findByIdAndUpdate(docId,{slot_booked});
+
+        return res.json({success:true, message: "Appointment booked"})
+
+    } catch (error) {
+        return res.json({ success: false, message: error.message });
+    }
+}
+
+module.exports = { registerUser, userLogin, getProfile, updateProfile,bookAppointment }
