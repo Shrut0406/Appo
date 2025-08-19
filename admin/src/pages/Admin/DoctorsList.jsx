@@ -4,7 +4,7 @@ import { AdminContext } from '../../context/AdminContext'
 const DoctorsList = () => {
   const { DoctorsList, getAllDoctors, aToken, changeAvailability } = useContext(AdminContext);
   // getAllDoctors();
-  // console.log(DoctorsList);
+  console.log(DoctorsList);
   useEffect(() => {
     if (aToken) {
       getAllDoctors();
