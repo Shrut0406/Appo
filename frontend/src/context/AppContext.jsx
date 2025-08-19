@@ -28,7 +28,7 @@ const AppContextProvider = (props) => {
             
         }
     }
-
+ 
     const getDoctorsData = async () => {
         try {
             const { data } = await axios.get(backendUrl + 'api/doctor/list')
@@ -59,6 +59,7 @@ const AppContextProvider = (props) => {
 
     const value = {
         doctors,
+        getDoctorsData,
         currencySymbol,
         token, setToken,
         backendUrl,
