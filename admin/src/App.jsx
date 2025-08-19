@@ -11,7 +11,7 @@ import AllAppointments from './pages/Admin/AllAppointments'
 import DoctorsList from './pages/Admin/DoctorsList'
 const App = () => {
   const { aToken } = useContext(AdminContext);
-  console.log(aToken);
+  // console.log(aToken);
   return aToken ? (
     <div className='bg-[#F8F9FD]'>
       <Navbar />
